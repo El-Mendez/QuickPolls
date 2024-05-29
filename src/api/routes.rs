@@ -4,11 +4,11 @@ use axum::{Json, Router};
 use axum::http::StatusCode;
 use axum::routing::{get, post};
 use chrono::Utc;
-use sea_orm::ActiveModelTrait;
 use sea_orm::ActiveValue::Set;
 use serde::Deserialize;
+use serde_json::{json, Map, Value};
 use crate::api::controller::PollController;
-use crate::models::poll;
+use crate::models::{poll, poll_option};
 use crate::state::AppState;
 
 type Result<T> = core::result::Result<T, (StatusCode, String)>;
@@ -25,6 +25,7 @@ pub fn api_routes(state: AppState) -> Router {
 #[derive(Deserialize)]
 struct CreatePoll {
     title: String,
+    options: Vec<String>
 }
 
 async fn create_poll(state: State<AppState>, data: Json<CreatePoll>) -> Result<Json<poll::Model>> {
@@ -35,21 +36,37 @@ async fn create_poll(state: State<AppState>, data: Json<CreatePoll>) -> Result<J
         ..Default::default()
     };
 
-    PollController::create_poll(&state.db, poll)
+    let options: Vec<poll_option::ActiveModel> = data.options.into_iter().map(|option| {
+        poll_option::ActiveModel {
+            value: Set(option),
+            ..Default::default()
+        }
+    }).collect();
+
+    PollController::create_poll(&state.db, poll, options)
         .await
         .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, "Could not create poll".into()))
         .map(Json)
 }
 
-async fn get_poll(state: State<AppState>, Path(id): Path<u32>) -> Result<Json<poll::Model>> {
+
+async fn get_poll(state: State<AppState>, Path(id): Path<u32>) -> Result<Json<serde_json::Value>> {
     PollController::get_poll(&state.db, id)
         .await
         .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, "Could not get poll".into()))?
         .ok_or_else(|| (StatusCode::NOT_FOUND, "Not found".into()))
-        .map(Json)
+        .map(|(poll, options)| {
+            let mut js: Map<String, Value> = match json!(poll) {
+                Value::Object(x) => x,
+                _ => unreachable!(),
+            };
+
+            js.insert("options".into(), json!(options));
+            Json(Value::Object(js))
+        })
 }
 
-async fn poll_results(state: State<AppState>, Path(id): Path<u32>) -> String {
+async fn poll_results(state: State<AppState>, Path(_id): Path<u32>) -> String {
     println!("{:?}", state.db);
     "Hello, Poll!!".into()
 }

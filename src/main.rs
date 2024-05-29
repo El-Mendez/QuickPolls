@@ -3,8 +3,6 @@ mod state;
 mod api;
 
 use axum::{Router, routing::get};
-use sea_orm::ActiveModelTrait;
-use serde::{Deserialize, Serialize};
 use crate::api::api_routes;
 use crate::state::AppState;
 

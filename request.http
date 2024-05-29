@@ -3,8 +3,9 @@ POST http://localhost:3000/api/
 Content-Type: application/json
 
 {
-  "title": "titulo"
+  "title": "titulo",
+  "options": ["first", "second"]
 }
 
 ###
-GET http://localhost:3000/api/1
+GET http://localhost:3000/api/2
