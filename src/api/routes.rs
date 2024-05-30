@@ -8,12 +8,15 @@ use sea_orm::ActiveValue::Set;
 use serde::Deserialize;
 use serde_json::{json, Map, Value};
 use crate::api::controller::PollController;
+use crate::api::socket::socket_handler;
 use crate::models::{poll, poll_answer, poll_option};
 use crate::state::AppState;
 
 type Result<T> = core::result::Result<T, (StatusCode, String)>;
 
 pub fn api_routes(state: AppState) -> Router {
+    state.io.ns("/", socket_handler);
+
     Router::new()
         .route("/", post(create_poll))
         .route("/:poll_id", get(get_poll).post(vote_poll))
@@ -77,8 +80,11 @@ struct VotePollAnswer {
 async fn vote_poll(state: State<AppState>, Path(id): Path<u32>, Json(vote): Json<VotePollAnswer>) -> Result<Json<poll_answer::Model>> {
     match PollController::vote_poll(&state.db, id, vote.answer_id).await {
         Ok(None) => Err((StatusCode::NOT_FOUND, "Could not find poll".into())),
-        Ok(Some(vote)) => Ok(Json(vote)),
         Err(_) => Err((StatusCode::INTERNAL_SERVER_ERROR, "Could not vote poll".into())),
+        Ok(Some(vote)) => {
+            let _ = state.io.to(id.to_string()).emit("vote", ());
+            Ok(Json(vote))
+        },
     }
 }
 
@@ -94,6 +100,9 @@ async fn end_poll(state: State<AppState>, Path(id): Path<u32>) -> Result<StatusC
     match PollController::end_poll(&state.db, id).await {
         Err(_) => Err((StatusCode::INTERNAL_SERVER_ERROR, "could not end poll".into())),
         Ok(None) => Err((StatusCode::NOT_FOUND, "Could not find poll".into())),
-        Ok(Some(())) => Ok(StatusCode::OK)
+        Ok(Some(())) => {
+            let _ = state.io.to(id.to_string()).emit("end", ());
+            Ok(StatusCode::OK)
+        }
     }
 }
