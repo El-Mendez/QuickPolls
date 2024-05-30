@@ -9,7 +9,7 @@ use serde::Deserialize;
 use serde_json::{json, Map, Value};
 use crate::api::controller::PollController;
 use crate::api::socket::socket_handler;
-use crate::models::{poll, poll_answer, poll_option};
+use crate::models::{poll, poll_option};
 use crate::state::AppState;
 
 type Result<T> = core::result::Result<T, (StatusCode, String)>;
@@ -77,13 +77,12 @@ async fn get_poll(state: State<AppState>, Path(id): Path<u32>) -> Result<Json<Va
 struct VotePollAnswer {
     answer_id: u32,
 }
-async fn vote_poll(state: State<AppState>, Path(id): Path<u32>, Json(vote): Json<VotePollAnswer>) -> Result<Json<poll_answer::Model>> {
+async fn vote_poll(state: State<AppState>, Path(id): Path<u32>, Json(vote): Json<VotePollAnswer>) -> Result<Json<Value>> {
     match PollController::vote_poll(&state.db, id, vote.answer_id).await {
-        Ok(None) => Err((StatusCode::NOT_FOUND, "Could not find poll".into())),
         Err(_) => Err((StatusCode::INTERNAL_SERVER_ERROR, "Could not vote poll".into())),
-        Ok(Some(vote)) => {
-            let _ = state.io.to(id.to_string()).emit("vote", ());
-            Ok(Json(vote))
+        Ok(x) => {
+            let _ = state.io.to(id.to_string()).emit("vote", &x);
+            Ok(Json(serde_json::to_value(x).unwrap()))
         },
     }
 }

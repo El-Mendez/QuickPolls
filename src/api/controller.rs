@@ -70,7 +70,7 @@ impl PollController {
         db: &DbConn,
         poll_id: u32,
         poll_option_id: u32,
-    ) -> Result<Option<poll_answer::Model>> {
+    ) -> Result<Vec<PollResult>> {
         let result = PollOption::find_by_id(poll_option_id)
             .find_with_related(Poll)
             .all(db)
@@ -79,24 +79,24 @@ impl PollController {
             .map(|(option, mut poll)| (option, poll.pop().unwrap()));
 
         let (_, poll) = match result {
-            None => return Ok(None),
+            None => return Err(DbErr::Custom("could not find poll".into())),
             Some(x) => x,
         };
 
         if poll.id != poll_id {
-            return Ok(None);
+            return Err(DbErr::Custom("Poll has already ended".into()));
         }
 
         if poll.end_date.is_some() {
             return Err(DbErr::Custom("Poll has already ended".into()));
         }
 
-        Ok(Some(poll_answer::ActiveModel {
+        poll_answer::ActiveModel {
             poll_option_id: Set(poll_option_id),
             ..Default::default()
-        }.save(db)
-            .await
-            .map(TryIntoModel::try_into_model)??))
+        }.save(db).await?;
+
+        Self::get_results(db, poll_id).await
     }
 
     pub async fn end_poll(
