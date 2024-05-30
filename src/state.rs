@@ -1,5 +1,5 @@
 use sea_orm::{ConnectionTrait, Database, DatabaseConnection, DbErr, Schema};
-use crate::models::{poll, poll_option};
+use crate::models::{poll, poll_answer, poll_option};
 
 #[derive(Clone)]
 pub struct AppState {
@@ -15,9 +15,11 @@ impl AppState {
 
         let statement1 = builder.build(&schema.create_table_from_entity(poll::Entity));
         let statement2 = builder.build(&schema.create_table_from_entity(poll_option::Entity));
+        let statement3 = builder.build(&schema.create_table_from_entity(poll_answer::Entity));
 
         db.execute(statement1).await?;
         db.execute(statement2).await?;
+        db.execute(statement3).await?;
 
         Ok(AppState { db })
     }

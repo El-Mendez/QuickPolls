@@ -8,7 +8,7 @@ use sea_orm::ActiveValue::Set;
 use serde::Deserialize;
 use serde_json::{json, Map, Value};
 use crate::api::controller::PollController;
-use crate::models::{poll, poll_option};
+use crate::models::{poll, poll_answer, poll_option};
 use crate::state::AppState;
 
 type Result<T> = core::result::Result<T, (StatusCode, String)>;
@@ -16,8 +16,9 @@ type Result<T> = core::result::Result<T, (StatusCode, String)>;
 pub fn api_routes(state: AppState) -> Router {
     Router::new()
         .route("/", post(create_poll))
-        .route("/:poll_id", get(get_poll))
+        .route("/:poll_id", get(get_poll).post(vote_poll))
         .route("/:poll_id/results", get(poll_results))
+        .route("/:poll_id/end", get(end_poll))
         .with_state(state)
 }
 
@@ -50,10 +51,13 @@ async fn create_poll(state: State<AppState>, data: Json<CreatePoll>) -> Result<J
 }
 
 
-async fn get_poll(state: State<AppState>, Path(id): Path<u32>) -> Result<Json<serde_json::Value>> {
+async fn get_poll(state: State<AppState>, Path(id): Path<u32>) -> Result<Json<Value>> {
     PollController::get_poll(&state.db, id)
         .await
-        .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, "Could not get poll".into()))?
+        .map_err(|e| {
+            println!("{}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, "Could not get poll".into())
+        })?
         .ok_or_else(|| (StatusCode::NOT_FOUND, "Not found".into()))
         .map(|(poll, options)| {
             let mut js: Map<String, Value> = match json!(poll) {
@@ -66,8 +70,30 @@ async fn get_poll(state: State<AppState>, Path(id): Path<u32>) -> Result<Json<se
         })
 }
 
-async fn poll_results(state: State<AppState>, Path(_id): Path<u32>) -> String {
-    println!("{:?}", state.db);
-    "Hello, Poll!!".into()
+#[derive(Deserialize, Debug)]
+struct VotePollAnswer {
+    answer_id: u32,
+}
+async fn vote_poll(state: State<AppState>, Path(id): Path<u32>, Json(vote): Json<VotePollAnswer>) -> Result<Json<poll_answer::Model>> {
+    match PollController::vote_poll(&state.db, id, vote.answer_id).await {
+        Ok(None) => Err((StatusCode::NOT_FOUND, "Could not find poll".into())),
+        Ok(Some(vote)) => Ok(Json(vote)),
+        Err(_) => Err((StatusCode::INTERNAL_SERVER_ERROR, "Could not vote poll".into())),
+    }
 }
 
+async fn poll_results(state: State<AppState>, Path(id): Path<u32>) -> Result<Json<Value>> {
+    PollController::get_results(&state.db, id)
+        .await
+        .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, "Could not find poll results".into()))
+        .map(|x| serde_json::to_value(x).unwrap())
+        .map(Json)
+}
+
+async fn end_poll(state: State<AppState>, Path(id): Path<u32>) -> Result<StatusCode> {
+    match PollController::end_poll(&state.db, id).await {
+        Err(_) => Err((StatusCode::INTERNAL_SERVER_ERROR, "could not end poll".into())),
+        Ok(None) => Err((StatusCode::NOT_FOUND, "Could not find poll".into())),
+        Ok(Some(())) => Ok(StatusCode::OK)
+    }
+}

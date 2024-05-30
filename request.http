@@ -1,4 +1,4 @@
-###
+### Create Poll
 POST http://localhost:3000/api/
 Content-Type: application/json
 
@@ -7,5 +7,19 @@ Content-Type: application/json
   "options": ["first", "second"]
 }
 
-###
-GET http://localhost:3000/api/2
+### Get Poll
+GET http://localhost:3000/api/1
+
+### Get Poll Result
+GET http://localhost:3000/api/1/results
+
+### Vote Poll
+POST http://localhost:3000/api/1
+Content-Type: application/json
+
+{
+  "answer_id": 1
+}
+
+### End Poll
+GET http://localhost:3000/api/1/end

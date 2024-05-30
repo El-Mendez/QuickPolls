@@ -18,12 +18,20 @@ pub enum Relation {
         to = "super::poll::Column::Id"
     )]
     Poll,
+    #[sea_orm(has_many = "super::poll_answer::Entity")]
+    PollAnswer,
 }
 
 
 impl Related<super::poll::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Poll.def()
+    }
+}
+
+impl Related<super::poll_answer::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::PollAnswer.def()
     }
 }
 
