@@ -20,9 +20,10 @@ async fn main() {
         .with_max_level(Level::INFO)
         .init();
 
-    let port = env::var("PORT").unwrap_or_else(|_| String::from("3000"));
+    let port = env::var("PORT").unwrap_or_else(|_| String::from("80"));
     let db_uri = env::var("DATABASE_URI").expect("Missing database URI");
-    let run_migrations = env::args().find(|x| x == "migrate").is_some();
+    let migrate = env::var("MIGRATE").unwrap_or_else(|_| String::from("no"));
+    let should_run_migrations = migrate == "yes" || migrate == "true";
 
     let (socket_io_layer, io) = SocketIo::new_layer();
     let serve_static_files = ServeDir::new("static")
@@ -35,7 +36,7 @@ async fn main() {
         .make_span_with(trace::DefaultMakeSpan::new().level(Level::INFO))
         .on_response(trace::DefaultOnResponse::new().level(Level::INFO));
 
-    let state = AppState::new(io, &db_uri, run_migrations).await.expect("could not connect to db");
+    let state = AppState::new(io, &db_uri, should_run_migrations).await.expect("could not connect to db");
     let app = Router::new()
         .nest_service("/api", api_routes(state))
         .fallback_service(serve_static_files)

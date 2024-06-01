@@ -1,0 +1,8 @@
+./api/target
+./api/.idea
+./api/request.http
+*.sqlite
+./ui/node_modules
+./ui/.eslintrc.cjs
+./ui/.idea
+./ui/README.md
