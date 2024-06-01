@@ -1,5 +1,5 @@
 ### Create Poll
-POST http://localhost:3000/api/
+POST http://localhost:3000/api/polls
 Content-Type: application/json
 
 {
@@ -8,13 +8,13 @@ Content-Type: application/json
 }
 
 ### Get Poll
-GET http://localhost:3000/api/1
+GET http://localhost:3000/api/polls/1
 
 ### Get Poll Result
-GET http://localhost:3000/api/1/results
+GET http://localhost:3000/api/polls/1/results
 
 ### Vote Poll
-POST http://localhost:3000/api/1
+POST http://localhost:3000/api/polls/1
 Content-Type: application/json
 
 {
@@ -22,4 +22,4 @@ Content-Type: application/json
 }
 
 ### End Poll
-POST http://localhost:3000/api/1/end
+POST http://localhost:3000/api/polls/1/end
