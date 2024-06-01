@@ -22,7 +22,7 @@ async fn main() {
 
     let port = env::var("PORT").unwrap_or_else(|_| String::from("3000"));
     let db_uri = env::var("DATABASE_URI").expect("Missing database URI");
-    let run_migrations = env::args().find(|x| x == "--run-migrations").is_some();
+    let run_migrations = env::args().find(|x| x == "migrate").is_some();
 
     let (socket_io_layer, io) = SocketIo::new_layer();
     let serve_static_files = ServeDir::new("static")
