@@ -26,6 +26,7 @@ const ResultsScreen = () => {
   const [results, setResults] = useState<Result[] | null>(null);
   const socketRef = useRef<Socket | undefined>();
   const navigate = useNavigate();
+  const onGoing = data?.end_date == null;
 
   useEffect(() => {
     Promise.all([
@@ -40,11 +41,11 @@ const ResultsScreen = () => {
   }, []);
 
   useEffect(() => {
-    if (data == null || data.end_date != null) {
+    if (!onGoing) {
       return
     }
 
-    const socket = io("http://localhost:3000");
+    const socket = io(window.location.origin);
     socketRef.current = socket;
 
     socket.emit("subscribe", id);
@@ -106,8 +107,12 @@ const ResultsScreen = () => {
       <Typography variant="h2">{data.title}</Typography>
 
       {results.every(x => x.count === 0) ? (
+        onGoing ? (
           <Typography variant="h4">Todavía no hay votos</Typography>
         ) : (
+          <Typography variant="h4">La encuesta ha terminado. No hay votos que mostrar.</Typography>
+        )
+      ) : (
         <PieChart
           series={[{
             data: results.map(x => {
