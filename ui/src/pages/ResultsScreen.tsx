@@ -1,7 +1,8 @@
 import {useEffect, useRef, useState} from "react";
 import {useNavigate, useParams} from "react-router-dom";
 import {PieChart} from "@mui/x-charts/PieChart";
-import {Box, Button, Typography} from "@mui/material";
+import {Box, Button, IconButton, Snackbar, Tooltip, Typography} from "@mui/material";
+import Link from '@mui/icons-material/Link';
 import {io, Socket} from "socket.io-client";
 
 type Option = {
@@ -27,6 +28,7 @@ const ResultsScreen = () => {
   const socketRef = useRef<Socket | undefined>();
   const navigate = useNavigate();
   const onGoing = data?.end_date == null;
+  const [openNotification, setOpenNotification] = useState<boolean>(false);
 
   useEffect(() => {
     Promise.all([
@@ -58,6 +60,10 @@ const ResultsScreen = () => {
       socketRef.current = undefined;
     }
   }, [data, id]);
+
+  const onCopyLink = () => {
+    navigator.clipboard.writeText(window.location.origin + "/" + id).then(() => setOpenNotification(true));
+  }
 
   const setPollAsEnded = () => {
     setData(data => {
@@ -104,7 +110,14 @@ const ResultsScreen = () => {
       gap={4}
       sx={{p: 12}}
     >
-      <Typography variant="h2">{data.title}</Typography>
+      <Box display="flex" flexDirection="row" alignItems="center" justifyContent="space-between" gap={3}>
+        <Typography variant="h2">{data.title}</Typography>
+        <Tooltip title="Copiar enlace para compartir">
+          <IconButton color="primary" size="large" onClick={onCopyLink}>
+            <Link fontSize="large"/>
+          </IconButton>
+        </Tooltip>
+      </Box>
 
       {results.every(x => x.count === 0) ? (
         onGoing ? (
@@ -133,6 +146,13 @@ const ResultsScreen = () => {
       ) : (
         <Button variant="outlined" onClick={handleCreateNew}>Crea una nueva encuesta</Button>
       )}
+
+      <Snackbar
+        open={openNotification}
+        autoHideDuration={1000}
+        onClose={() => setOpenNotification(false)}
+        message="¡Enlace copiado!"
+      />
     </Box>
   )
 }

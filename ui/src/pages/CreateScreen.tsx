@@ -45,7 +45,7 @@ const CreateScreen = () => {
       alignItems="center"
       justifyContent="center"
       gap={4}
-      sx={{p: 12}}
+      sx={{py: 12}}
     >
       <Typography variant="h2">Crea una encuesta</Typography>
 
@@ -55,7 +55,7 @@ const CreateScreen = () => {
         variant="standard"
         value={title}
         onChange={x => setTitle(x.target.value)}
-        sx={{width: "30%"}}
+        sx={{ width: { xs: "70%", md: "30%" }}}
       />
 
       <Stack
@@ -96,6 +96,7 @@ const CreateScreen = () => {
       <Stack
         direction="row"
         gap={2}
+        flexWrap="wrap"
         justifyContent="center"
         alignItems="center"
         sx={{width: "70%"}}

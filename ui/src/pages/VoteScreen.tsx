@@ -75,13 +75,13 @@ const VoteScreen = () => {
       alignItems="center"
       justifyContent="center"
       gap={4}
-      sx={{p: 12}}
+      sx={{px: { xs: 4, md: 12 }, py: 12}}
     >
       <Typography variant="h2">{data.title}</Typography>
 
       <Stack
         gap={1}
-        sx={{width: "70%"}}
+        sx={{width: "100%", maxWidth: 800}}
       >
         {data.options.map((option) => {
           return (
