@@ -18,8 +18,8 @@ POST http://localhost:3000/api/1
 Content-Type: application/json
 
 {
-  "answer_id": 1
+  "answer_id": 2
 }
 
 ### End Poll
-GET http://localhost:3000/api/1/end
+POST http://localhost:3000/api/1/end

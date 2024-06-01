@@ -11,6 +11,7 @@ pub struct PollController;
 #[derive(FromQueryResult, Debug, Serialize)]
 pub struct PollResult {
     id: u32,
+    value: String,
     count: u32,
 }
 
@@ -59,10 +60,12 @@ impl PollController {
         Poll::find_by_id(id)
             .select_only()
             .column_as(poll_option::Column::Id, "id")
+            .column_as(poll_option::Column::Value, "value")
             .column_as(poll_answer::Column::PollOptionId.count(), "count")
             .join(JoinType::InnerJoin, poll::Relation::Option.def())
             .join(JoinType::LeftJoin, poll_option::Relation::PollAnswer.def())
             .group_by(poll_option::Column::Id)
+            .group_by(poll_option::Column::Value)
             .into_model::<PollResult>().all(db).await
     }
 
