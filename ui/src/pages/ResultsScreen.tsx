@@ -29,9 +29,9 @@ const ResultsScreen = () => {
 
   useEffect(() => {
     Promise.all([
-      fetch(`http://localhost:3000/api/polls/${id}`)
+      fetch(`/api/polls/${id}`)
         .then((res) => res.json()),
-      fetch(`http://localhost:3000/api/polls/${id}/results`)
+      fetch(`/api/polls/${id}/results`)
         .then((res) => res.json())
     ]).then(([data, results]) => {
       setData(data);
@@ -67,7 +67,7 @@ const ResultsScreen = () => {
   }
 
   const handleEndPoll = () => {
-    fetch(`http://localhost:3000/api/polls/${id}/end`, {
+    fetch(`/api/polls/${id}/end`, {
       method: "POST",
     }).then(setPollAsEnded)
 

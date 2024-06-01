@@ -21,7 +21,7 @@ const CreateScreen = () => {
 
   const onSubmit = async () => {
     try {
-      const data = await fetch("http://localhost:3000/api/polls", {
+      const data = await fetch("/api/polls", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -26,7 +26,7 @@ const VoteScreen = () => {
   const [data, setData] = useState<null | PollData>(null);
 
   useEffect(() => {
-    fetch(`http://localhost:3000/api/polls/${id}`)
+    fetch(`/api/polls/${id}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.end_date) {
@@ -40,7 +40,7 @@ const VoteScreen = () => {
     const pollId = option.poll_id;
     const answer_id = option.id;
 
-    fetch(`http://localhost:3000/api/polls/${pollId}`, {
+    fetch(`/api/polls/${pollId}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
