@@ -9,34 +9,11 @@
     docker_image: elmendez/quick-poll
     docker_container: quick-poll
     db_uri: "sqlite::memory:"
+    migrate: "yes"
 
   tasks:
     # INSTALL DOCKER
-    - name: Install Docker Dependencies
-      apt:
-        pkg:
-          - apt-transport-https
-          - ca-certificates
-          - curl
-          - software-properties-common
-          - python3-pip
-          - virtualenv
-          - python3-setuptools
-        state: latest
-        update_cache: true
-    - name: Add Docker GPG apt Key
-      apt_key:
-        url: https://download.docker.com/linux/ubuntu/gpg
-        state: present
-    - name: Add Docker Repository
-      apt_repository:
-        repo: deb https://download.docker.com/linux/ubuntu focal stable
-        state: present
-    - name: Install Docker
-      apt:
-        name: docker-ce
-        state: latest
-        update_cache: true
+    - import_tasks: ../shared/install_docker.yml
 
     # INSTALL NODE EXPORTER
     - name: Create user for node-exporter
@@ -83,7 +60,7 @@
         auto_remove: yes
         env:
           DB_URI: "{{ db_uri }}"
-          MIGRATE: "yes"
+          MIGRATE: "{{ migrate }}"
         ports:
           - "80:80"
           - "3000:3000"
