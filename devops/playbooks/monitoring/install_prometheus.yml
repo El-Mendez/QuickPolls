@@ -1,0 +1,59 @@
+- name: Create user for prometheus
+  user:
+    name: "{{ prometheus_user }}"
+    state: present
+    createhome: no
+    shell: /usr/sbin/nologin
+
+- name: Download Prometheus
+  unarchive:
+    src: "{{ prometheus_url }}"
+    remote_src: yes
+    dest: /tmp
+    creates: "/tmp/{{ prometheus_download_dir }}"
+
+- name: Move Prometheus Executable
+  copy:
+    src: "/tmp/{{ prometheus_download_dir }}/{{ prometheus_executable }}"
+    remote_src: yes
+    dest: /usr/local/bin
+    owner: "{{ prometheus_user }}"
+    group: "{{ prometheus_user }}"
+    mode: '0775'
+
+- name: Create Prometheus Config Directory
+  file:
+    path: /etc/prometheus
+    state: directory
+    owner: "{{ prometheus_user }}"
+    group: "{{ prometheus_user }}"
+    mode: '0775'
+    recurse: yes
+- name: Copy Prometheus Config
+  template:
+    src: ./templates/prometheus_config.yml.j2
+    dest: /etc/prometheus/prometheus.yml
+    owner: "{{ prometheus_user }}"
+    group: "{{ prometheus_user }}"
+    mode: '0775'
+
+- name: Create Prometheus Data Directory
+  file:
+    path: /var/lib/prometheus
+    state: directory
+    owner: "{{ prometheus_user }}"
+    group: "{{ prometheus_user }}"
+    mode: '0775'
+    recurse: yes
+
+- name: Create Prometheus Service
+  template:
+    src: ./templates/prometheus.service.j2
+    dest: /etc/systemd/system/prometheus.service
+
+- name: Restart Prometheus Service
+  service:
+    name: prometheus
+    state: restarted
+    daemon_reload: yes
+    enabled: yes

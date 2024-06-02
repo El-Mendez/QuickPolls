@@ -1,0 +1,23 @@
+global:
+  scrape_interval: 15s
+  external_labels:
+    monitor: 'prometheus'
+
+scrape_configs:
+  - job_name: 'pometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+  - job_name: 'webapp-server'
+    static_configs:
+      - targets: [
+        {% for app_target in app_targets %}
+          '{{ app_target }}:9100'
+        {% endfor %}
+      ]
+  - job_name: 'webapp'
+    static_configs:
+      - targets: [
+        {% for app_target in app_targets %}
+          '{{ app_target }}:3000'
+        {% endfor %}
+      ]

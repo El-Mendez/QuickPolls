@@ -1,0 +1,22 @@
+- name: Setup the App
+  hosts: appservers
+  become: yes
+  tasks:
+    # INSTALL DOCKER
+    - import_tasks: ./install_docker.yml
+
+    # INSTALL NODE EXPORTER
+    - import_tasks: ./install_node_exporter.yml
+      vars:
+        node_exporter_user: exporter
+        node_exporter_url: https://github.com/prometheus/node_exporter/releases/download/v1.8.1/node_exporter-1.8.1.linux-amd64.tar.gz
+        node_exporter_download_dir: node_exporter-1.8.1.linux-amd64
+        node_exporter_executable: node_exporter
+
+    # SET UP THE APP
+    - import_tasks: ./install_app.yml
+      vars:
+        app_image: elmendez/quick-poll:latest
+        app_container: quick-poll
+        db_uri: "sqlite::memory:"
+        migrate: "yes"

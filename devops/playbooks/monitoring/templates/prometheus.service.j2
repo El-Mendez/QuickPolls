@@ -1,0 +1,14 @@
+[Unit]
+Description=Prometheus Service
+After=network.target
+
+[Service]
+User={{ prometheus_user }}
+Group={{ prometheus_user }}
+Type=simple
+ExecStart=/usr/local/bin/{{ prometheus_executable }} \
+    --config.file /etc/prometheus/prometheus.yml     \
+    --storage.tsdb.path /var/lib/prometheus/
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,31 @@
+- name: Install Grafana Dependencies
+  apt:
+    pkg:
+      - apt-transport-https
+      - wget
+      - software-properties-common
+    state: latest
+    update_cache: true
+
+- name: Add Grafana GPG apt Key
+  apt_key:
+    url: https://apt.grafana.com/gpg.key
+    state: present
+
+- name: Add Grafana Repository
+  apt_repository:
+    repo: deb https://apt.grafana.com stable main
+    state: present
+
+- name: Install Grafana
+  apt:
+    name: grafana
+    state: latest
+    update_cache: true
+
+- name: Restart Grafana Service
+  service:
+    name: grafana-server
+    state: restarted
+    daemon_reload: yes
+    enabled: yes

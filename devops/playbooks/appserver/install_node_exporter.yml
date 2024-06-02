@@ -1,0 +1,30 @@
+- name: Create user for node-exporter
+  user:
+    name: "{{ node_exporter_user }}"
+    state: present
+    createhome: no
+    shell: /usr/sbin/nologin
+- name: Download node-exporter
+  unarchive:
+    src: "{{ node_exporter_url }}"
+    remote_src: yes
+    dest: /tmp
+    creates: "/tmp/{{ node_exporter_download_dir }}"
+- name: Move node-exporter
+  copy:
+    src: "/tmp/{{ node_exporter_download_dir }}/{{ node_exporter_executable }}"
+    remote_src: yes
+    dest: /usr/local/bin/
+    owner: "{{ node_exporter_user }}"
+    group: "{{ node_exporter_user }}"
+    mode: '0775'
+- name: Create service
+  template:
+    src: ./templates/node-exporter.service.j2
+    dest: "/etc/systemd/system/node-exporter.service"
+- name: Restart node-exporter
+  service:
+    name: node-exporter
+    state: restarted
+    daemon_reload: yes
+    enabled: yes
