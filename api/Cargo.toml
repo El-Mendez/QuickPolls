@@ -16,3 +16,4 @@ sea-orm = { version = "^0.12.0", features = [ "sqlx-sqlite", "sqlx-postgres", "r
 uuid = { version = "1.8.0", features = ["v4"] }
 log = "0.4.21"
 tower-http = { version = "0.5.2", features = ["cors", "fs", "trace"] }
+axum-prometheus = "0.6.1"

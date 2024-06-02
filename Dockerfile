@@ -12,6 +12,7 @@ RUN npm run build
 FROM debian:bookworm
 WORKDIR app
 EXPOSE 80
+EXPOSE 3000
 RUN mkdir ./static
 ENV DATABASE_URI=sqlite::memory:
 ENV MIGRATE=no
