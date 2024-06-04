@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
 
 test('adds numbers correctly', () => {
-  expect(2 + 3).toBe(5);
+  expect(3 + 3).toBe(6);
 })
