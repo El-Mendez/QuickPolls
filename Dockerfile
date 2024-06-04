@@ -14,8 +14,8 @@ WORKDIR app
 EXPOSE 80
 EXPOSE 3000
 RUN mkdir ./static
-ENV DATABASE_URI=sqlite::memory:
-ENV MIGRATE=no
+ENV DATABASE_URI=postgres://postgres:postgres@localhost
+ENV MIGRATE=yes
 COPY --from=ui /app/dist ./static
 COPY --from=api /app/target/release/proyecto-final .
 CMD ["./proyecto-final"]

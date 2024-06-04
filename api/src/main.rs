@@ -27,7 +27,7 @@ async fn main() {
     let public_port = env::var("PUBLIC_PORT").unwrap_or_else(|_| String::from("80"));
     let private_port = env::var("GRAFANA_PORT").unwrap_or_else(|_| String::from("3000"));
     let db_uri = env::var("DATABASE_URI").expect("Missing database URI");
-    let migrate = env::var("MIGRATE").unwrap_or_else(|_| String::from("no"));
+    let migrate = env::var("MIGRATE").unwrap_or_else(|_| String::from("yes"));
     let should_only_run_migrations = migrate == "only";
     let should_run_migrations = should_only_run_migrations || migrate == "yes" || migrate == "true";
 

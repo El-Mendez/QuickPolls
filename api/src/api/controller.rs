@@ -10,9 +10,9 @@ pub struct PollController;
 
 #[derive(FromQueryResult, Debug, Serialize)]
 pub struct PollResult {
-    id: u32,
+    id: i32,
     value: String,
-    count: u32,
+    count: i64,
 }
 
 impl PollController {
@@ -44,7 +44,7 @@ impl PollController {
 
     pub async fn get_poll(
         db: &DbConn,
-        id: u32,
+        id: i32,
     ) -> Result<Option<(poll::Model, Vec<poll_option::Model>)>> {
         Ok(Poll::find_by_id(id)
             .find_with_related(PollOption)
@@ -55,7 +55,7 @@ impl PollController {
 
     pub async fn get_results(
         db: &DbConn,
-        id: u32,
+        id: i32,
     ) -> Result<Vec<PollResult>> {
         Poll::find_by_id(id)
             .select_only()
@@ -71,8 +71,8 @@ impl PollController {
 
     pub async fn vote_poll(
         db: &DbConn,
-        poll_id: u32,
-        poll_option_id: u32,
+        poll_id: i32,
+        poll_option_id: i32,
     ) -> Result<Vec<PollResult>> {
         let result = PollOption::find_by_id(poll_option_id)
             .find_with_related(Poll)
@@ -104,7 +104,7 @@ impl PollController {
 
     pub async fn end_poll(
         db: &DbConn,
-        poll_id: u32,
+        poll_id: i32,
     ) -> Result<Option<()>> {
         let poll = Poll::find_by_id(poll_id)
             .one(db)

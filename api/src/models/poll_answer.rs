@@ -5,8 +5,8 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "polls_answer")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: u32,
-    pub poll_option_id: u32,
+    pub id: i32,
+    pub poll_option_id: i32,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

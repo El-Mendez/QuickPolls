@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 #[sea_orm(table_name = "polls")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: u32,
+    pub id: i32,
     pub title: String,
     pub start_date: DateTimeWithTimeZone,
     pub end_date: Option<DateTimeWithTimeZone>,

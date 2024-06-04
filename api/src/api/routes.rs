@@ -58,7 +58,7 @@ async fn create_poll(state: State<AppState>, data: Json<CreatePoll>) -> Result<J
 }
 
 
-async fn get_poll(state: State<AppState>, Path(id): Path<u32>) -> Result<Json<Value>> {
+async fn get_poll(state: State<AppState>, Path(id): Path<i32>) -> Result<Json<Value>> {
     PollController::get_poll(&state.db, id)
         .await
         .map_err(|e| {
@@ -79,10 +79,10 @@ async fn get_poll(state: State<AppState>, Path(id): Path<u32>) -> Result<Json<Va
 
 #[derive(Deserialize, Debug)]
 struct VotePollAnswer {
-    answer_id: u32,
+    answer_id: i32,
 }
 
-async fn vote_poll(state: State<AppState>, Path(id): Path<u32>, Json(vote): Json<VotePollAnswer>) -> Result<Json<Value>> {
+async fn vote_poll(state: State<AppState>, Path(id): Path<i32>, Json(vote): Json<VotePollAnswer>) -> Result<Json<Value>> {
     match PollController::vote_poll(&state.db, id, vote.answer_id).await {
         Err(e) => {
             error!("{e}");
@@ -97,7 +97,7 @@ async fn vote_poll(state: State<AppState>, Path(id): Path<u32>, Json(vote): Json
     }
 }
 
-async fn poll_results(state: State<AppState>, Path(id): Path<u32>) -> Result<Json<Value>> {
+async fn poll_results(state: State<AppState>, Path(id): Path<i32>) -> Result<Json<Value>> {
     PollController::get_results(&state.db, id)
         .await
         .map_err(|e| {
@@ -108,7 +108,7 @@ async fn poll_results(state: State<AppState>, Path(id): Path<u32>) -> Result<Jso
         .map(Json)
 }
 
-async fn end_poll(state: State<AppState>, Path(id): Path<u32>) -> Result<StatusCode> {
+async fn end_poll(state: State<AppState>, Path(id): Path<i32>) -> Result<StatusCode> {
     match PollController::end_poll(&state.db, id).await {
         Err(e) => {
             error!("{e}");
