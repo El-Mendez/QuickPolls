@@ -1,2 +1,3 @@
 playbooks/hosts
 venv
+terraform/key

@@ -9,8 +9,8 @@
     state: started
     auto_remove: yes
     env:
-      DB_URI: "{{ db_uri }}"
-      MIGRATE: "{{ migrate }}"
+      DATABASE_URI: "{{ db_uri | string }}"
+      MIGRATE: "{{ migrate | string }}"
     ports:
       - "80:80"
       - "3000:3000"

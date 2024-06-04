@@ -1,11 +1,12 @@
 - name: Setup the App
-  hosts: monitoring
+  hosts: all
   become: yes
+  vars:
+    app_targets:
+      - "192.168.1.102"
   tasks:
   - import_tasks: ./install_prometheus.yml
     vars:
-      app_targets:
-       - "192.168.1.102"
       prometheus_user: prometheus
       prometheus_url: https://github.com/prometheus/prometheus/releases/download/v2.52.0/prometheus-2.52.0.linux-amd64.tar.gz
       prometheus_download_dir: prometheus-2.52.0.linux-amd64

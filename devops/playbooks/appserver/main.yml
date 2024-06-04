@@ -1,6 +1,9 @@
 - name: Setup the App
-  hosts: appservers
+  hosts: all
   become: yes
+  vars:
+    db_uri: "sqlite::memory:"
+    migrate: "yes"
   tasks:
     # INSTALL DOCKER
     - import_tasks: ./install_docker.yml
@@ -18,5 +21,3 @@
       vars:
         app_image: elmendez/quick-poll:latest
         app_container: quick-poll
-        db_uri: "sqlite::memory:"
-        migrate: "yes"
