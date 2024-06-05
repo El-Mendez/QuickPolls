@@ -82,7 +82,7 @@ async fn main() {
 mod tests {
     #[test]
     fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
+        let result = 1 + 1;
+        assert_eq!(result, 2);
     }
 }
