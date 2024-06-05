@@ -8,7 +8,8 @@ output "monitoring_server_public_ip" {
   value = aws_instance.monitoring_server.public_ip
 }
 
-output "db_address" {
+output "db_uri" {
   description = "The password of the RDS"
   value = "postgres://${var.db_username}:${random_password.db_password.result}@${aws_db_instance.db.address}:5432/${aws_db_instance.db.db_name}"
+  sensitive = true
 }
