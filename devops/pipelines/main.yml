@@ -3,7 +3,10 @@
   become: yes
   vars:
     db_uri: "sqlite::memory:"
+    app_image: 'elmendez/quick-poll:latest'
     migrate: "yes"
+    app_container: 'quick-poll'
+
   tasks:
   - name: Pull the App Image
     community.docker.docker_image:
