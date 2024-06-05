@@ -16,7 +16,7 @@ const MainScreen = () => {
       <Typography variant="h1">Crea una encuesta</Typography>
       <Link to="/crear">
         <Button>
-          <Typography variant="h2">Wow</Typography>
+          <Typography variant="h2">aquí</Typography>
         </Button>
       </Link>
     </Box>
