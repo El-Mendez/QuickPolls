@@ -27,7 +27,3 @@ variable "db_name" {
   type = string
   description = "The username of the RDS Database"
 }
-
-variable "db_password" {
-  type = string
-}

@@ -117,6 +117,10 @@ resource "aws_vpc_security_group_ingress_rule" "db_ingress" {
   from_port   = 5432
   to_port     = 5432
 }
+resource "random_password" "db_password" {
+  special = false
+  length = 20
+}
 
 
 resource "aws_instance" "application_server" {
@@ -141,7 +145,7 @@ resource "aws_instance" "application_server" {
   }
 
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu -i '${self.public_ip},'  -e 'db_uri=postgres://${var.db_username}:${var.db_password}@${aws_db_instance.db.address}:5432/${aws_db_instance.db.db_name}' ../playbooks/appserver/main.yml"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu -i '${self.public_ip},'  -e 'db_uri=postgres://${var.db_username}:${random_password.db_password.result}@${aws_db_instance.db.address}:5432/${aws_db_instance.db.db_name}' ../playbooks/appserver/main.yml"
   }
 }
 
@@ -176,7 +180,7 @@ resource "aws_db_instance" "db" {
   instance_class    = "db.t3.micro"
   db_name           = var.db_name
   username          = var.db_username
-  password          = var.db_password
+  password          = random_password.db_password.result
   allocated_storage = 10
   performance_insights_enabled = false
   skip_final_snapshot = true
