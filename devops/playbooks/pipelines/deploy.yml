@@ -1,4 +1,4 @@
-- name: Setup the App
+- name: Update the app
   hosts: all
   become: yes
   vars:
@@ -6,7 +6,6 @@
     app_image: 'elmendez/quick-poll:latest'
     migrate: "yes"
     app_container: 'quick-poll'
-
   tasks:
   - name: Pull the App Image
     community.docker.docker_image:

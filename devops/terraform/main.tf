@@ -133,11 +133,12 @@ resource "aws_instance" "application_server" {
   tags = {
     Name = "application_server"
   }
-
+}
+resource "null_resource" "prepare_application_server" {
   provisioner "remote-exec" {
     inline = ["echo 'ssh ready'"]
     connection {
-      host = self.public_ip
+      host = aws_instance.application_server.public_ip
       type = "ssh"
       user = "ubuntu"
       private_key = file(var.personal_private_ssh_key)
@@ -145,7 +146,13 @@ resource "aws_instance" "application_server" {
   }
 
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu -i '${self.public_ip},'  -e 'db_uri=postgres://${var.db_username}:${random_password.db_password.result}@${aws_db_instance.db.address}:5432/${aws_db_instance.db.db_name}' ../playbooks/appserver/main.yml"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu -i '${aws_instance.application_server.public_ip},' ../playbooks/appserver/main.yml"
+  }
+}
+resource "null_resource" "install_application_server" {
+  depends_on = [null_resource.prepare_application_server]
+  provisioner "local-exec" {
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu -i '${aws_instance.application_server.public_ip},'  -e 'db_uri=postgres://${var.db_username}:${random_password.db_password.result}@${aws_db_instance.db.address}:5432/${aws_db_instance.db.db_name}' ../playbooks/pipelines/deploy.yml"
   }
 }
 
@@ -159,11 +166,12 @@ resource "aws_instance" "monitoring_server" {
   tags = {
     Name = "monitoring_server"
   }
-
+}
+resource "null_resource" "install_monitoring_server" {
   provisioner "remote-exec" {
     inline = ["echo 'ssh ready'"]
     connection {
-      host = self.public_ip
+      host = aws_instance.monitoring_server.public_ip
       type = "ssh"
       user = "ubuntu"
       private_key = file(var.personal_private_ssh_key)
@@ -171,7 +179,7 @@ resource "aws_instance" "monitoring_server" {
   }
 
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu -i '${self.public_ip},' -e '{\"app_targets\":[\"${aws_instance.application_server.private_ip}\"]}' ../playbooks/monitoring/main.yml"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu -i '${aws_instance.monitoring_server.public_ip},' -e '{\"app_targets\":[\"${aws_instance.application_server.private_ip}\"]}' ../playbooks/monitoring/main.yml"
   }
 }
 

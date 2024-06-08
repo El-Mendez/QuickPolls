@@ -89,7 +89,7 @@ pipeline {
                     string(credentialsId: 'db_uri', variable: 'DB_URI')
                 ]) {
                     ansiblePlaybook(
-                        playbook: './deploy.yml',
+                        playbook: './devops/playbooks/pipelines/deploy.yml',
                         credentialsId: 'app_server_ssh',
                         inventory: '$APP_SERVER_IP,',
                         extraVars: [
