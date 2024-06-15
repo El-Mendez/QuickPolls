@@ -144,7 +144,7 @@ const ResultsScreen = () => {
       {data.end_date == null ? (
         <Button variant="contained" onClick={handleEndPoll}>Terminar Encuesta</Button>
       ) : (
-        <Button variant="outlined" onClick={handleCreateNew}>Crea una nueva encuesta</Button>
+        <Button variant="outlined" onClick={handleCreateNew}>Crea muchas nuevas encuestas</Button>
       )}
 
       <Snackbar
